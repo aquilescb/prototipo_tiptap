@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useReducer } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -7,6 +7,10 @@ import { InformeToolbar } from './InformeToolbar'
 import type { InformeEditorProps } from './types'
 
 export function InformeEditor({ onEditorReady }: InformeEditorProps) {
+  // Fuerza re-render del componente cuando el cursor se mueve,
+  // para que isActive() devuelva valores frescos en InformeToolbar.
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0)
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -16,9 +20,9 @@ export function InformeEditor({ onEditorReady }: InformeEditorProps) {
       }),
     ],
     content: '',
+    onSelectionUpdate: forceUpdate,
     editorProps: {
       attributes: {
-        class: 'tiptap-editor',
         'data-placeholder': 'Escribí el informe aquí...',
       },
     },
@@ -33,12 +37,9 @@ export function InformeEditor({ onEditorReady }: InformeEditorProps) {
   if (!editor) return null
 
   return (
-    <div className="tiptap-editor flex flex-col flex-1">
+    <div className="tiptap-editor">
       <InformeToolbar editor={editor} />
-      <EditorContent
-        editor={editor}
-        className="flex-1 overflow-y-auto"
-      />
+      <EditorContent editor={editor} />
     </div>
   )
 }
